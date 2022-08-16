@@ -29,24 +29,27 @@ namespace arduino.Controllers
         [Route("is-enabled")]
         public async Task<IActionResult> GetIsOn()
         {
-            bool result = false;
+            bool isEnabled = false;
+            float temperature=0;
             using (NpgsqlConnection con = GetConnection())
             {
-                string sql = "SELECT value FROM ison WHERE id = 0";
+                string sql = "SELECT isenabled,temperature FROM toggleinfo WHERE id = 0";
                 con.Open();
                 using (NpgsqlCommand command = new NpgsqlCommand(sql, con))
                 {
                     NpgsqlDataReader reader = command.ExecuteReader();
                     while (reader.Read())
                     {
-                        result = bool.Parse(reader[0].ToString());
+                        isEnabled = bool.Parse(reader[0].ToString());
+                        temperature = float.Parse(reader[1].ToString());
                         //do whatever you like
                     }
                 }
             }
             return Ok(new
             {
-                value = result,
+                isEnabled = isEnabled,
+                temperature = temperature,
             });
         }
 
