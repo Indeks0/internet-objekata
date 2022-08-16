@@ -25,6 +25,7 @@ namespace arduino.Controllers
         #region Methods
 
         [HttpGet]
+        [Produces("application/json")]
         [Route("is-enabled")]
         public IActionResult Get()
         {
