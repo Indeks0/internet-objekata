@@ -44,7 +44,10 @@ namespace arduino.Controllers
                     }
                 }
             }
-            return Ok(result);
+            return Ok(new
+            {
+                value=result,
+            });
         }
 
         private static NpgsqlConnection GetConnection()
