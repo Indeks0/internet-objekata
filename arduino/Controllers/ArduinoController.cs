@@ -26,7 +26,7 @@ namespace arduino.Controllers
 
         [HttpGet]
         [Route("is-enabled")]
-        public bool Get()
+        public IActionResult Get()
         {
             bool result = false;
             using (NpgsqlConnection con = GetConnection())
@@ -43,7 +43,7 @@ namespace arduino.Controllers
                     }
                 }
             }
-            return result;
+            return Ok(result);
         }
 
         private static NpgsqlConnection GetConnection()
