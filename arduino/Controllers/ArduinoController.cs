@@ -27,7 +27,7 @@ namespace arduino.Controllers
         [HttpGet]
         [Produces("application/json")]
         [Route("is-enabled")]
-        public IActionResult Get()
+        public async Task<IActionResult> GetIsOn()
         {
             bool result = false;
             using (NpgsqlConnection con = GetConnection())
@@ -46,7 +46,7 @@ namespace arduino.Controllers
             }
             return Ok(new
             {
-                value=result,
+                value = result,
             });
         }
 
