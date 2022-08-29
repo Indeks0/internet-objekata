@@ -60,12 +60,13 @@ namespace arduino.Controllers
         [Route("get-system-toggle-info")]
         public async Task<IActionResult> GetSystemToggleInfoAsync()
         {
-            bool isEnabled = false;
-            float temperature = 0;
+            List<SystemToggleInfo> listItems = new List<SystemToggleInfo>();
+
             using (NpgsqlConnection con = GetConnection())
             {
                 string sql = "SELECT * FROM systemtoggleinfo";
                 con.Open();
+
                 using (NpgsqlCommand command = new NpgsqlCommand(sql, con))
                 {
                     NpgsqlDataReader reader = command.ExecuteReader();
@@ -75,6 +76,8 @@ namespace arduino.Controllers
                         sysToggleInfo.id = reader[0].ToString();
                         sysToggleInfo.changedTo = bool.Parse(reader[1].ToString());
                         sysToggleInfo.dateCreated = DateTime.Parse(reader[2].ToString());
+
+                        listItems.Add(sysToggleInfo);
                     }
                 }
 
@@ -82,8 +85,7 @@ namespace arduino.Controllers
             }
             return Ok(new
             {
-                isEnabled = isEnabled,
-                temperature = temperature,
+                items = listItems
             });
         }
 
