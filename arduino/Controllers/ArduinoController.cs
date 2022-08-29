@@ -98,7 +98,7 @@ namespace arduino.Controllers
             {
                 using (NpgsqlConnection con = GetConnection())
                 {
-                    var dateCreated = DateTime.Now;
+                    var dateCreated = DateTime.UtcNow;
                     string sql = $"INSERT INTO temperaturetime (temp, tempsensor, datecreated, ison) VALUES (:temp, :tempsensor, :datecreated, :ison)";
                     con.Open();
 
@@ -130,7 +130,7 @@ namespace arduino.Controllers
         {
             using (NpgsqlConnection con = GetConnection())
             {
-                var dateCreated = DateTime.Now;
+                var dateCreated = DateTime.UtcNow;
                 string sql = $"INSERT INTO systemtoggleinfo (changedto, datecreated) VALUES (:nextValue, :datecreated)";
                 con.Open();
 
@@ -160,7 +160,6 @@ namespace arduino.Controllers
         {
             using (NpgsqlConnection con = GetConnection())
             {
-                var dateCreated = DateTime.Now;
                 string sql = $"UPDATE toggleinfo SET isenabled = :nextvalue WHERE id = 0";
                 con.Open();
 
