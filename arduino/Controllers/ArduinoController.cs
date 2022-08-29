@@ -56,7 +56,7 @@ namespace arduino.Controllers
         [HttpPost]
         [Produces("application/json")]
         [Route("post-info")]
-        public async Task<IActionResult> PostInfoAsync(float temp, float tempSensor, bool ison)
+        public async Task<IActionResult> PostInfoAsync(float temp, float tempSensor, bool isOn)
         {
             using (NpgsqlConnection con = GetConnection())
             {
@@ -71,7 +71,7 @@ namespace arduino.Controllers
                         command.Parameters.AddWithValue("temp", temp);
                         command.Parameters.AddWithValue("tempsensor", tempSensor);
                         command.Parameters.AddWithValue("datecreated", dateCreated);
-                        command.Parameters.AddWithValue("ison", ison);
+                        command.Parameters.AddWithValue("ison", isOn);
                         await command.ExecuteNonQueryAsync();
                     }
                     catch (Exception ex)
