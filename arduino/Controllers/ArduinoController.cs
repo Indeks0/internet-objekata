@@ -88,9 +88,9 @@ namespace arduino.Controllers
         }
 
         [HttpPost]
-        [Produces("application/json")]
+        [Consumes("application/x-www-form-urlencoded")]
         [Route("post-info")]
-        public async Task<IActionResult> PostInfoAsync(PostInfoRest postInfo)
+        public async Task<IActionResult> PostInfoAsync([FromForm] PostInfoRest postInfo)
         {
             try
             {
