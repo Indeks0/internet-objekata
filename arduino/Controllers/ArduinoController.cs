@@ -56,7 +56,7 @@ namespace arduino.Controllers
         }
 
         [HttpPost]
-        [Produces("application/json")]
+        [Produces("application/x-www-form-urlencoded")]
         [Route("post-info")]
         public async Task<IActionResult> PostInfoAsync(string temp, string tempSensor, string isOn)
         {
@@ -90,12 +90,12 @@ namespace arduino.Controllers
         [HttpPut]
         [Produces("application/json")]
         [Route("update-isEnabled")]
-        public async Task<IActionResult> PostInfoAsync(bool nextValue)
+        public async Task<IActionResult> UpdateIsEnabledAsync(bool nextValue)
         {
             using (NpgsqlConnection con = GetConnection())
             {
                 var dateCreated = DateTime.Now;
-                string sql = $"UPDATE toggleinfo SET isenabled = :nextvalue WHERE id = 0;";
+                string sql = $"UPDATE toggleinfo SET isenabled = :nextvalue WHERE id = 0";
                 con.Open();
 
                 using (NpgsqlCommand command = new NpgsqlCommand(sql, con))
