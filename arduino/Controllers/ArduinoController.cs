@@ -102,18 +102,11 @@ namespace arduino.Controllers
 
                     using (NpgsqlCommand command = new NpgsqlCommand(sql, con))
                     {
-                        try
-                        {
-                            command.Parameters.AddWithValue("temp", float.Parse(postInfo.temp));
-                            command.Parameters.AddWithValue("tempsensor", float.Parse(postInfo.tempSensor));
-                            command.Parameters.AddWithValue("datecreated", dateCreated);
-                            command.Parameters.AddWithValue("ison", bool.Parse(postInfo.isEnabled));
-                            await command.ExecuteNonQueryAsync();
-                        }
-                        catch (Exception ex)
-                        {
-                            throw;
-                        }
+                        command.Parameters.AddWithValue("temp", float.Parse(postInfo.temp));
+                        command.Parameters.AddWithValue("tempsensor", float.Parse(postInfo.tempSensor));
+                        command.Parameters.AddWithValue("datecreated", dateCreated);
+                        command.Parameters.AddWithValue("ison", bool.Parse(postInfo.isEnabled));
+                        await command.ExecuteNonQueryAsync();
 
                         con.Close();
                     }
@@ -143,8 +136,8 @@ namespace arduino.Controllers
                 {
                     try
                     {
-                        command.Parameters.AddWithValue("changedto", nextValue);
-                        command.Parameters.AddWithValue("tempsensor", dateCreated);
+                        command.Parameters.AddWithValue("nextValue", nextValue);
+                        command.Parameters.AddWithValue("datecreated", dateCreated);
                         await command.ExecuteNonQueryAsync();
                     }
                     catch (Exception ex)
