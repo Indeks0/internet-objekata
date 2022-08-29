@@ -56,9 +56,9 @@ namespace arduino.Controllers
         }
 
         [HttpPost]
-        [Produces("application/x-www-form-urlencoded")]
+        [Produces("application/json")]
         [Route("post-info")]
-        public async Task<IActionResult> PostInfoAsync(string temp, string tempSensor, string isOn)
+        public async Task<IActionResult> PostInfoAsync(PostInfoRest postInfo)
         {
             using (NpgsqlConnection con = GetConnection())
             {
@@ -70,10 +70,10 @@ namespace arduino.Controllers
                 {
                     try
                     {
-                        command.Parameters.AddWithValue("temp", float.Parse(temp));
-                        command.Parameters.AddWithValue("tempsensor", float.Parse(tempSensor));
+                        command.Parameters.AddWithValue("temp", float.Parse(postInfo.temp));
+                        command.Parameters.AddWithValue("tempsensor", float.Parse(postInfo.tempSensor));
                         command.Parameters.AddWithValue("datecreated", dateCreated);
-                        command.Parameters.AddWithValue("ison", bool.Parse(isOn));
+                        command.Parameters.AddWithValue("ison", bool.Parse(postInfo.isEnabled));
                         await command.ExecuteNonQueryAsync();
                     }
                     catch (Exception ex)
@@ -123,5 +123,12 @@ namespace arduino.Controllers
         }
 
         #endregion Methods
+
+        public class PostInfoRest
+        {
+            public string temp { get; set; }
+            public string tempSensor { get; set; }
+            public string isEnabled { get; set; }
+        }
     }
 }
