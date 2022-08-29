@@ -89,6 +89,41 @@ namespace arduino.Controllers
             });
         }
 
+        [HttpGet]
+        [Produces("application/json")]
+        [Route("get-temperature-info")]
+        public async Task<IActionResult> GetTemperatureInfoAsync()
+        {
+            List<TemperatureInfo> listItems = new List<TemperatureInfo>();
+
+            using (NpgsqlConnection con = GetConnection())
+            {
+                string sql = "SELECT * FROM temperaturetime ORDER BY datecreated DESC LIMIT 25";
+                con.Open();
+
+                using (NpgsqlCommand command = new NpgsqlCommand(sql, con))
+                {
+                    NpgsqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        var sysToggleInfo = new TemperatureInfo();
+                        sysToggleInfo.id = reader[0].ToString();
+                        sysToggleInfo.temp = float.Parse(reader[1].ToString());
+                        sysToggleInfo.tempSensor = float.Parse(reader[2].ToString());
+                        sysToggleInfo.dateCreated = DateTime.Parse(reader[3].ToString());
+
+                        listItems.Add(sysToggleInfo);
+                    }
+                }
+
+                con.Close();
+            }
+            return Ok(new
+            {
+                items = listItems
+            });
+        }
+
         [HttpPost]
         [Consumes("application/x-www-form-urlencoded")]
         [Route("post-info")]
@@ -180,6 +215,33 @@ namespace arduino.Controllers
             return Ok();
         }
 
+        [HttpPut]
+        [Produces("application/json")]
+        [Route("update-temperature")]
+        public async Task<IActionResult> UpdateTemperatureAsync(float nextValue)
+        {
+            using (NpgsqlConnection con = GetConnection())
+            {
+                string sql = $"UPDATE toggleinfo SET temperature = :nextvalue WHERE id = 0";
+                con.Open();
+
+                using (NpgsqlCommand command = new NpgsqlCommand(sql, con))
+                {
+                    try
+                    {
+                        command.Parameters.AddWithValue("temperature", nextValue);
+                        await command.ExecuteNonQueryAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        throw;
+                    }
+                    con.Close();
+                }
+            }
+            return Ok();
+        }
+
         private static NpgsqlConnection GetConnection()
         {
             var con = new NpgsqlConnection("Server=tyke.db.elephantsql.com;Database=rrduyjdv;User Id=rrduyjdv;Password=caxhs8GGaKovQ59S5LQFxpPAg1p2Ezwt");
@@ -208,6 +270,18 @@ namespace arduino.Controllers
 
             public string id { get; set; }
             public bool changedTo { get; set; }
+            public DateTime dateCreated { get; set; }
+
+            #endregion Properties
+        }
+
+        public class TemperatureInfo
+        {
+            #region Properties
+
+            public string id { get; set; }
+            public float temp { get; set; }
+            public float tempSensor { get; set; }
             public DateTime dateCreated { get; set; }
 
             #endregion Properties
