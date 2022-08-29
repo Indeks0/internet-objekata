@@ -45,6 +45,8 @@ namespace arduino.Controllers
                         //do whatever you like
                     }
                 }
+
+                con.Close();
             }
             return Ok(new
             {
@@ -78,6 +80,36 @@ namespace arduino.Controllers
                     {
                         throw;
                     }
+
+                    con.Close();
+                }
+            }
+            return Ok();
+        }
+
+        [HttpPut]
+        [Produces("application/json")]
+        [Route("update-isEnabled")]
+        public async Task<IActionResult> PostInfoAsync(bool nextValue)
+        {
+            using (NpgsqlConnection con = GetConnection())
+            {
+                var dateCreated = DateTime.Now;
+                string sql = $"UPDATE toggleinfo SET isenabled = :nextvalue WHERE id = 0;";
+                con.Open();
+
+                using (NpgsqlCommand command = new NpgsqlCommand(sql, con))
+                {
+                    try
+                    {
+                        command.Parameters.AddWithValue("nextvalue", nextValue);
+                        await command.ExecuteNonQueryAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        throw;
+                    }
+                    con.Close();
                 }
             }
             return Ok();
