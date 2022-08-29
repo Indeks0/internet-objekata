@@ -55,25 +55,96 @@ namespace arduino.Controllers
             });
         }
 
+        [HttpGet]
+        [Produces("application/json")]
+        [Route("get-system-toggle-info")]
+        public async Task<IActionResult> GetSystemToggleInfoAsync()
+        {
+            bool isEnabled = false;
+            float temperature = 0;
+            using (NpgsqlConnection con = GetConnection())
+            {
+                string sql = "SELECT * FROM systemtoggleinfo";
+                con.Open();
+                using (NpgsqlCommand command = new NpgsqlCommand(sql, con))
+                {
+                    NpgsqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        var sysToggleInfo = new SystemToggleInfo();
+                        sysToggleInfo.id = reader[0].ToString();
+                        sysToggleInfo.changedTo = bool.Parse(reader[1].ToString());
+                        sysToggleInfo.dateCreated = DateTime.Parse(reader[2].ToString());
+                    }
+                }
+
+                con.Close();
+            }
+            return Ok(new
+            {
+                isEnabled = isEnabled,
+                temperature = temperature,
+            });
+        }
+
         [HttpPost]
         [Produces("application/json")]
         [Route("post-info")]
         public async Task<IActionResult> PostInfoAsync(PostInfoRest postInfo)
         {
+            try
+            {
+                using (NpgsqlConnection con = GetConnection())
+                {
+                    var dateCreated = DateTime.Now;
+                    string sql = $"INSERT INTO temperaturetime (temp, tempsensor, datecreated, ison) VALUES (:temp, :tempsensor, :datecreated, :ison)";
+                    con.Open();
+
+                    using (NpgsqlCommand command = new NpgsqlCommand(sql, con))
+                    {
+                        try
+                        {
+                            command.Parameters.AddWithValue("temp", float.Parse(postInfo.temp));
+                            command.Parameters.AddWithValue("tempsensor", float.Parse(postInfo.tempSensor));
+                            command.Parameters.AddWithValue("datecreated", dateCreated);
+                            command.Parameters.AddWithValue("ison", bool.Parse(postInfo.isEnabled));
+                            await command.ExecuteNonQueryAsync();
+                        }
+                        catch (Exception ex)
+                        {
+                            throw;
+                        }
+
+                        con.Close();
+                    }
+                }
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+                throw;
+            }
+        }
+
+        [HttpPost]
+        [Produces("application/json")]
+        [Route("post-system-toggle-info")]
+        public async Task<IActionResult> PostSystemToggleInfoAsync(bool nextValue)
+        {
             using (NpgsqlConnection con = GetConnection())
             {
                 var dateCreated = DateTime.Now;
-                string sql = $"INSERT INTO temperaturetime (temp, tempsensor, datecreated, ison) VALUES (:temp, :tempsensor, :datecreated, :ison)";
+                string sql = $"INSERT INTO systemtoggleinfo (changedto, datecreated) VALUES (:nextValue, :datecreated)";
                 con.Open();
 
                 using (NpgsqlCommand command = new NpgsqlCommand(sql, con))
                 {
                     try
                     {
-                        command.Parameters.AddWithValue("temp", float.Parse(postInfo.temp));
-                        command.Parameters.AddWithValue("tempsensor", float.Parse(postInfo.tempSensor));
-                        command.Parameters.AddWithValue("datecreated", dateCreated);
-                        command.Parameters.AddWithValue("ison", bool.Parse(postInfo.isEnabled));
+                        command.Parameters.AddWithValue("changedto", nextValue);
+                        command.Parameters.AddWithValue("tempsensor", dateCreated);
                         await command.ExecuteNonQueryAsync();
                     }
                     catch (Exception ex)
@@ -124,11 +195,30 @@ namespace arduino.Controllers
 
         #endregion Methods
 
+        #region Classes
+
         public class PostInfoRest
         {
+            #region Properties
+
             public string temp { get; set; }
             public string tempSensor { get; set; }
             public string isEnabled { get; set; }
+
+            #endregion Properties
         }
+
+        public class SystemToggleInfo
+        {
+            #region Properties
+
+            public string id { get; set; }
+            public bool changedTo { get; set; }
+            public DateTime dateCreated { get; set; }
+
+            #endregion Properties
+        }
+
+        #endregion Classes
     }
 }
