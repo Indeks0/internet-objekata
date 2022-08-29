@@ -229,7 +229,7 @@ namespace arduino.Controllers
                 {
                     try
                     {
-                        command.Parameters.AddWithValue("temperature", nextValue);
+                        command.Parameters.AddWithValue("nextvalue", nextValue);
                         await command.ExecuteNonQueryAsync();
                     }
                     catch (Exception ex)
