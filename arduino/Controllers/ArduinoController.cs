@@ -27,7 +27,7 @@ namespace arduino.Controllers
         [HttpGet]
         [Produces("application/json")]
         [Route("is-enabled")]
-        public async Task<IActionResult> GetIsOnAsync()
+        public async Task<IActionResult> GetIsEnabledAsync()
         {
             bool isEnabled = false;
             float temperature = 0;
@@ -64,7 +64,7 @@ namespace arduino.Controllers
 
             using (NpgsqlConnection con = GetConnection())
             {
-                string sql = "SELECT * FROM systemtoggleinfo";
+                string sql = "SELECT * FROM systemtoggleinfo ORDER BY id DESC LIMIT 30";
                 con.Open();
 
                 using (NpgsqlCommand command = new NpgsqlCommand(sql, con))
@@ -98,7 +98,7 @@ namespace arduino.Controllers
 
             using (NpgsqlConnection con = GetConnection())
             {
-                string sql = "SELECT * FROM temperaturetime ORDER BY datecreated DESC LIMIT 25";
+                string sql = "SELECT * FROM temperaturetime ORDER BY datecreated DESC LIMIT 30";
                 con.Open();
 
                 using (NpgsqlCommand command = new NpgsqlCommand(sql, con))
@@ -111,6 +111,7 @@ namespace arduino.Controllers
                         sysToggleInfo.temp = float.Parse(reader[1].ToString());
                         sysToggleInfo.tempSensor = float.Parse(reader[2].ToString());
                         sysToggleInfo.dateCreated = DateTime.Parse(reader[3].ToString());
+                        sysToggleInfo.isEnabled = bool.Parse(reader[4].ToString());
 
                         listItems.Add(sysToggleInfo);
                     }
@@ -283,6 +284,7 @@ namespace arduino.Controllers
             public float temp { get; set; }
             public float tempSensor { get; set; }
             public DateTime dateCreated { get; set; }
+            public bool isEnabled { get; set; }
 
             #endregion Properties
         }
